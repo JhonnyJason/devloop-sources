@@ -7,6 +7,7 @@ import {createLogFunctions} from "thingy-debug"
 
 ##############################################################
 import meow from 'meow'
+import process from "node:process"
 
 ##############################################################
 #region internal functions
@@ -18,36 +19,36 @@ getHelpText = ->
     
         Options
             optional:
-                
+                arg1, --root <root-directory>, -r <root-directory>
+                    define the root directory of your project in which to run the devloop
+
+
         Examples
-            $  -c
-            ...
-    """
+            $ devloop  ~/projects/my-mega-project
+            $ devloop  -r ~/projects/my-mega-project
+            $ devloop  -root ~/projects/my-mega-project
+       """
 
 getOptions = ->
     log "getOptions"
     return {
         importMeta: import.meta,
         flags:
-            option: #optionsname
-                type: "boolean" # or string
-                alias: "o"
+            root: #optionsname
+                type: "string" # or string
+                alias: "r"
     }
 
 ##############################################################
 extractMeowed = (meowed) ->
     log "extractMeowed"
 
-    option = false # default
-    if meowed.input[0] then option = meowed.input[0]
-    if meowed.flags.option then option = true
+    wd = process.cwd() # default
+    if meowed.input[0] then wd = meowed.input[0]
+    if meowed.flags.root then wd = meowed.flags.root
 
-    return {option}
+    return { wd }
 
-throwErrorOnUsageFail = (extract) ->
-    log "throwErrorOnUsageFail"
-    if !extract.option then throw new Error("Usag error: no option has been defined!")
-    return
 #endregion
 
 ##############################################################
@@ -55,5 +56,4 @@ export extractArguments = ->
     log "extractArguments"
     meowed = meow(getHelpText(), getOptions())
     extract = extractMeowed(meowed)
-    throwErrorOnUsageFail(extract)
     return extract

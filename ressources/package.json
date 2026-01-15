@@ -21,8 +21,8 @@
   },
   "homepage": "https://",
   "dependencies": {
-    "chalk": "^4.1.2",
-    "meow": "^10.1.2"
+    "meow": "^10.1.2",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.7"
   },
   "type": "module"
 }

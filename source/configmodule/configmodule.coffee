@@ -1,3 +1,7 @@
 export cli = {
-    name: ""
+    name: "devloop",
+    version: "0.0.1"
 }
+
+# TODO read local config
+#     The
