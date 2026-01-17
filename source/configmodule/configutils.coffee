@@ -40,6 +40,7 @@ cryptoNode = ""
 ##############################################################################
 localConfig = null
 
+
 #endregion
 
 ##############################################################################
@@ -52,14 +53,20 @@ export readLocalConfig = ->
     catch err
         if err.code == 'ENOENT' then await createNewConfig()
         else throw err
+    
     return localConfig.content
 
 ##############################################################################
-export updateLocalConfig = (content) ->
+export updateLocalConfig = (content, validProps) ->
     log "updateLocalConfig"
-    ## TODO implement
-    return
-
+    validProps = new Set(validProps)
+    updated = []
+    for lbl,val of content when validProps.has(lbl)
+        if localConfig.content[lbl] != val
+            localConfig.content[lbl] = val
+            updated.push(lbl)
+    if updated.length > 0 then await saveConfig()
+    return updated
 
 ##############################################################################
 createNewConfig = ->
