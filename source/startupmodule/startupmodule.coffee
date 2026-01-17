@@ -11,6 +11,7 @@ import {createLogFunctions} from "thingy-debug"
 ##############################################################################
 import * as mp from "./mainprocessmodule.js"
 import * as ca from "./cliargumentsmodule.js"
+import * as pth from "./pathmodule.js"
 
 #endregion
 
@@ -20,6 +21,7 @@ export cliStartup = ->
     log "cliStartup"
     try
         e = ca.extractArguments()
+        pth.setWorkingDirectory(e.wd)
         await mp.execute(e)
         log "gracefully terminated!"
     catch err

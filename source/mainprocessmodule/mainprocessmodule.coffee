@@ -6,42 +6,37 @@ import {createLogFunctions} from "thingy-debug"
 #endregion
 
 ##############################################################################
+# This is the Main Process which runs the "outer" userDecisionCycle
+
+##############################################################################
 import * as Stt from "./statemodule.js" 
+import * as ui from "./uimodule.js"
+import * as taskLoop from "./taskloopmodule.js"
+import * as uConf from "./userconfigurationmodule.js"
 
 ##############################################################################
-state = null
-iteration = 0
-action = null
+outerCycleActions = {
+    "start task execution": -> taskLoop.execute()
+    "configure": -> uConf.configure()
+    "die!": -> process.exit(0)
+}   
 
 ##############################################################################
-maxCycles = Infinity 
-
-##############################################################################
-export initialize = (cfg) ->
-    log "initialize"
-    if cfg.maxCycles? then maxCycles = cfg.maxCycles
-    return
-
-##############################################################################
-export execute = (args) ->
+export execute = ->
     log "execute"
-    state = await Stt.readState(args.wd)
+    state = await Stt.readState()
+    ## TODO: figure out how to apply state
 
-    try loop await executionCycle()    
+    try loop await userDecisionCycle()    
     catch err then console.log err
     return
 
 ##############################################################################
-executionCycle = ->
-    logState()
-    if iteration == maxCycles then throw new Error("Exceeded maxCycles!")
-    ## TODO implement
-    
-    iteration++
-    return
-
-##############################################################################
-logState = -> log("@#{(new Date())}:#{iteration} #{state["latest-state"]} TaskId:#{state["latest-taskId"]} action: #{action} ")
+userDecisionCycle = ->
+    log "outerCycle"
+    uiChoices = Object.keys(outerCycleActions)
+    choice = await ui.retrieveChoice("Welcome to the Devloop!", uiChoices)
+    return await outerCycleActions[choice]()
 
 ##############################################################################
 setState = (taskId, stateString) ->

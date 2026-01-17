@@ -6,12 +6,10 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import fs from "node:fs/promises"
-import path from "node:path"
 
 ############################################################
-fileName = "devloopState.json" # default fileName
-stateFilePath = ""
 state = null
+stateFilePath = ""
 
 ############################################################
 defaultState = {
@@ -20,20 +18,11 @@ defaultState = {
 }
 
 ############################################################
-export initialize = (cfg) ->
-    log "initialize"
-    # fileName might be configured
-    if cfg.fileName? then fileName = cfg.fileName
-    return
+export setStateFilePath = (path) -> stateFilePath = path
 
 ############################################################
-export readState = (wd) ->
+export readState = ->
     log "readState"
-    if !wd? then throw new Error("No Working directory!")
-    stateFilePath = path.resolve(wd, fileName)
-
-    log stateFilePath
-
     try
         content = await fs.readFile(stateFilePath, "utf8")
         state = JSON.parse(content)

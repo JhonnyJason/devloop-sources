@@ -1,28 +1,32 @@
 {
   "name": "devloop",
   "version": "0.0.1",
-  "description": "",
+  "description": "Small CLI using Claude Code via the claude-agent-sdk. Autonomous task cycle + telegram notifications.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["claude code", "task", "loop"],
   "author": "Lenard Frommelt lenard@frommelt.dev",
-  "license": "Unlicense",
+  "license": "CC0-1.0",
   "bin": {
     "devloop": "./index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://.git"
+    "url": "git+https://github.com/JhonnyJason/devloop-output.git"
   },
   "bugs": {
-    "url": "https://"
+    "url": "https://github.com/JhonnyJason/devloop/issues"
   },
-  "homepage": "https://",
+  "homepage": "https://github.com/JhonnyJason/devloop-output/blob/master/README.md",
   "dependencies": {
     "meow": "^10.1.2",
-    "@anthropic-ai/claude-agent-sdk": "^0.2.7"
-  },
+    "enquirer": "^2.4.1",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.7",
+    "secret-manager-crypto-utils": "^0.3.1",
+    "thingy-byte-utils": "^0.0.8",
+    "thingy-crypto-node": "^0.0.2"
+   },
   "type": "module"
 }
