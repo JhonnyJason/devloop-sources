@@ -20,6 +20,11 @@ defaultState = {
 ############################################################
 export setStateFilePath = (path) -> stateFilePath = path
 
+
+############################################################
+export getState = -> state
+
+
 ############################################################
 export readState = ->
     log "readState"
@@ -35,9 +40,8 @@ export readState = ->
 
     state = defaultState
     await writeState()
-    return state
+    return
 
-############################################################
 export writeState = ->
     log "writeState"
     content = JSON.stringify(state, null, 4)

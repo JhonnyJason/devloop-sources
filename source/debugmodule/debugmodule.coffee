@@ -7,5 +7,6 @@ addModulesToDebug({
     # configmodule: true
     # mainprocessmodule: true
     # startupmodule: true
+    taskloopmodule: true
     # uimodule: true
 })

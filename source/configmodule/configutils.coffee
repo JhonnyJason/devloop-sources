@@ -74,8 +74,11 @@ createNewConfig = ->
     console.log "No config found. Creating new config at #{configPath}"
 
     # Ask if user wants password protection
-    pwd = await ui.retrieveSecret("New Password:")
-    confirmPw = await ui.retrieveSecret("Confirm password:")
+    try
+        pwd = await ui.retrieveSecret("New Password:")
+        confirmPw = await ui.retrieveSecret("Confirm password:")
+    catch err then process.exit(0) # when user cancelled exit application
+
     if pwd != confirmPw
         console.error "Passwords don't match. Try again."
         return createNewConfig()
@@ -117,7 +120,9 @@ decryptContent = (cfg) ->
     catch err then log err
 
     loop try # loop trough password attempts
-        password = await ui.retrieveSecret("Password:")
+        try password = await ui.retrieveSecret("Password:")
+        catch err then process.exit(0) # when user cancelled exit application
+
         secretKeyHex = await getKey(password, cfg.keyFragment)
         publicKeyHex = await secUtl.createPublicKey(secretKeyHex)
         cryptoNode = new ThingyCryptoNode({secretKeyHex, publicKeyHex})

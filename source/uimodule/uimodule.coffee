@@ -30,8 +30,9 @@ export retrieveString = (prompt) ->
         olog response
         return response.value
     catch err then log err
-    console.log("User input rejected - Bye!")
-    process.exit(0)
+    console.log("User input cancelled!")
+    # process.exit(0)
+    throw new Error("User cancelled!")
     return
 
 ############################################################
@@ -47,8 +48,9 @@ export retrieveSecret = (prompt) ->
         olog response
         return response.value
     catch err then log err
-    console.log("User input rejected - Bye!")
-    process.exit(0)
+    console.log("User input cancelled!")
+    # process.exit(0)
+    throw new Error("User cancelled!")
     return
 
 ############################################################
@@ -63,8 +65,9 @@ export retrieveChoice = (prompt, choices) ->
         })
         return response.value
     catch err then log err
-    console.log("User input rejected - Bye!")
-    process.exit(0)
+    console.log("User input cancelled!")
+    # process.exit(0)
+    throw new Error("User cancelled!")
     return
 
 #endregion

@@ -6,6 +6,7 @@ import * as pathmodule from "./pathmodule.js"
 import * as startupmodule from "./startupmodule.js"
 import * as statemodule from "./statemodule.js"
 import * as taskloopmodule from "./taskloopmodule.js"
+import * as tgmodule from "./tgmodule.js"
 import * as uimodule from "./uimodule.js"
 import * as userconfigurationmodule from "./userconfigurationmodule.js"
 
@@ -18,6 +19,7 @@ Modules = {
     startupmodule,
     statemodule,
     taskloopmodule,
+    tgmodule,
     uimodule,
     userconfigurationmodule,
 }

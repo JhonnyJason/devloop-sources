@@ -6,7 +6,7 @@ import { createLogFunctions } from "thingy-debug"
 
 ############################################################
 import * as ui from "./uimodule.js"
-import * as config from "./configmodule.js"
+import * as cfg from "./configmodule.js"
 
 ############################################################
 configurationOptions = {
@@ -18,55 +18,72 @@ configurationOptions = {
 }
 
 ############################################################
-done = false
-
-# local state for immediate feedback
-localTgToken = config.tgToken
-localTgChatId = config.tgChatId
-localMaxCycles = config.maxCycles
+# handle values locally - for updates
+localTgToken = cfg.tgToken
+localTgChatId = cfg.tgChatId
+localMaxCycles = cfg.maxCycles
 
 ############################################################
 export configure = ->
     log "configure"
-    done = false
-    while !done
-        choice = await ui.retrieveChoice("Configuration:", Object.keys(configurationOptions))
-        if choice == "back" then done = true
-        else await configurationOptions[choice]()
+    choices = Object.keys(configurationOptions)
+    loop
+        try choice = await ui.retrieveChoice("Configuration:", choices)
+        catch err then return
+        if choice == "back" then return
+
+        await configurationOptions[choice]()
     return
+
+############################################################
+effectiveMaxCycles = ->
+    if (localMaxCycles < 1) then return "Infinite"
+    return localMaxCycles
 
 ############################################################
 printConfig = ->
     log "printConfig"
+    console.log "_________________________________ currently configured:"
+    console.log ""
     console.log "tgToken:    #{localTgToken || '(not set)'}"
     console.log "tgChatId:   #{localTgChatId || '(not set)'}"
-    console.log "maxCycles:  #{localMaxCycles}"
+    console.log "maxCycles:  #{effectiveMaxCycles()}"
+    console.log ""
     return
 
+############################################################
 setTelegramToken = ->
     log "setTelegramToken"
-    token = await ui.retrieveSecret("Telegram Bot Token:")
-    await config.updateConfig({ tgToken: token })
+    try token = await ui.retrieveSecret("Telegram Bot Token:")
+    catch err then return
+
+    await cfg.updateConfig({ tgToken: token })
     localTgToken = token
     console.log "Token updated."
     return
 
 setChatId = ->
     log "setChatId"
-    chatId = await ui.retrieveString("Telegram Chat ID:")
-    await config.updateConfig({ tgChatId: chatId })
+    try chatId = await ui.retrieveString("Telegram Chat ID:")
+    catch err then return
+
+    await cfg.updateConfig({ tgChatId: chatId })
     localTgChatId = chatId
     console.log "Chat ID updated."
     return
 
 setMaxCycles = ->
     log "setMaxCycles"
-    input = await ui.retrieveString("Max Cycles (current: #{localMaxCycles}):")
+    try input = await ui.retrieveString("Max Cycles (current: #{effectiveMaxCycles()}):")
+    catch err then return
+
     num = parseInt(input, 10)
-    if isNaN(num)
-        console.log "Invalid input. Please enter a number."
+    if !input or num < 1 then num = -1 # interpreted as Infinite
+    if input and isNaN(num)
+        console.log 'Invalid input.\n  Please enter a positive number for setting a finite maximum ot task cylces.\n  Notice: 0, negative numbers and empty input leads to "Infinite".'
         return
-    await config.updateConfig({ maxCycles: num })
+    
+    await cfg.updateConfig({ maxCycles: num })
     localMaxCycles = num
     console.log "Max cycles updated."
     return

@@ -16,7 +16,7 @@ import * as uConf from "./userconfigurationmodule.js"
 
 ##############################################################################
 outerCycleActions = {
-    "start task execution": -> taskLoop.execute()
+    "run devloop": -> taskLoop.execute()
     "configure": -> uConf.configure()
     "die!": -> process.exit(0)
 }   
@@ -24,11 +24,10 @@ outerCycleActions = {
 ##############################################################################
 export execute = ->
     log "execute"
-    state = await Stt.readState()
-    ## TODO: figure out how to apply state
-
+    await Stt.readState()
+    
     try loop await userDecisionCycle()    
-    catch err then console.log err
+    catch err then return
     return
 
 ##############################################################################
@@ -37,11 +36,3 @@ userDecisionCycle = ->
     uiChoices = Object.keys(outerCycleActions)
     choice = await ui.retrieveChoice("Welcome to the Devloop!", uiChoices)
     return await outerCycleActions[choice]()
-
-##############################################################################
-setState = (taskId, stateString) ->
-    log "setState"
-    state["latest-taskId"] = taskId
-    state["latest-state"] = stateString
-    await Stt.writeState()
-    return

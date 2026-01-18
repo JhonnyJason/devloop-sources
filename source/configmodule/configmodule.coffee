@@ -20,7 +20,7 @@ export updateConfig = (content) ->
     updated = await utils.updateLocalConfig(content, localConfigProps)
     for prop in updated when onChangeListeners[prop]?
         callbacks = onChangeListeners[prop]
-        cb() for cb in callbacks
+        cb(content[prop]) for cb in callbacks
     return
 
 
