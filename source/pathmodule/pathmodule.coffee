@@ -7,6 +7,8 @@ import { createLogFunctions } from "thingy-debug"
 ############################################################
 import path from "node:path"
 import * as Stt from "./statemodule.js"
+import * as claude from "./claudemodule.js"
+import * as tl from "./taskloopmodule.js"
 
 ############################################################
 # Manage all application paths
@@ -16,9 +18,10 @@ import * as Stt from "./statemodule.js"
 stateFileName = "devloopState.json" # default stateFileName
 
 ############################################################
-baseDir = ""
-configPath = ""
-stateFilePath = ""
+# Prompt file paths (relative to working directory)
+findTaskPromptPath = "ai/prompts/find-next-task.md"
+taskFilePath = "ai/next-task.md"
+reviewTaskPromptPath = "ai/prompts/review-task.md"
 
 ############################################################
 export initialize = (cfg) ->
@@ -34,7 +37,15 @@ export setWorkingDirectory = (wd) ->
     if !wd? then throw new Error("No Working directory!")
 
     ## StateFile
-    stateFilePath = path.resolve(wd, stateFileName)
-    Stt.setStateFilePath(stateFilePath)
-    log stateFilePath
+    Stt.setStateFilePath(path.resolve(wd, stateFileName))
+
+    ## Claude module
+    claude.setWorkingDirectory(wd)
+
+    ## Prompt file paths for taskloop
+    tl.setPromptFilePaths({
+        findTaskPrompt: path.resolve(wd, findTaskPromptPath)
+        taskFile: path.resolve(wd, taskFilePath)
+        reviewTaskPrompt: path.resolve(wd, reviewTaskPromptPath)
+    })
     return

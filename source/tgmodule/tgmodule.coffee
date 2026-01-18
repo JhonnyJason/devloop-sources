@@ -14,7 +14,6 @@ chatId = null
 ############################################################
 export initialize = (cfg) ->
     log "initialize"
-    cfg.onChange("tgChatId", updateChatId)
     chatId = cfg.tgChatId
     cfg.onChange("tgChatId", updateChatId)
 
@@ -28,13 +27,16 @@ updateToken = (newVal) -> tgUrlSendMessage = 'https://api.telegram.org/bot' + ne
 
 ############################################################
 export send = (msg) ->
+    unless tgUrlSendMessage and chatId
+        log "send skipped - missing tgToken or chatId"
+        return
     options = {
         method: 'POST'
         headers: { 'Content-Type': 'application/json' }
-        body: '{"chat_id":'+chatId+',"text":"'+msg+'"}'
+        body: JSON.stringify({ chat_id: chatId, text: msg })
     }
     try resp = await fetch(tgUrlSendMessage, options)
     catch err then console.error(err)
-    
+
     if !resp.ok then console.error("Telegram Response was not OK! (#{resp.status})")
     return

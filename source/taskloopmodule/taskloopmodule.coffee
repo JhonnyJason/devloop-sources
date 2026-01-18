@@ -7,6 +7,8 @@ import { createLogFunctions } from "thingy-debug"
 ##############################################################################
 import * as Stt from "./statemodule.js"
 import * as tg from "./tgmodule.js"
+import * as claude from "./claudemodule.js"
+import fs from "node:fs/promises"
 
 ##############################################################################
 state = null
@@ -15,8 +17,10 @@ action = null
 
 ##############################################################################
 maxCycles = -1 # is taken as infinite
+
 ##############################################################################
-claudeAbortion = null
+# Prompt file paths (set by pathmodule)
+promptPaths = null
 
 ##############################################################################
 run = false
@@ -29,7 +33,7 @@ run = false
 export initialize = (cfg) ->
     log "initialize"
     if cfg.maxCycles? then maxCycles = cfg.maxCycles
-    cfg.onChange("maxCylces", updateMaxCycles)
+    cfg.onChange("maxCycles", updateMaxCycles)
 
     process.on("SIGINT", stopExecution)
     return
@@ -38,12 +42,17 @@ export initialize = (cfg) ->
 updateMaxCycles = (newVal) -> maxCycles = newVal
 
 ##############################################################################
+export setPromptFilePaths = (paths) ->
+    log "setPromptFilePaths"
+    promptPaths = paths
+    return
+
+##############################################################################
 export execute = ->
     log "execute"
     applyLatestState()
     iteration = 0
     run = true
-    tg.send("Started Devloop - now tasks are executed autonomously.\n")
     
     while(run)
         try await taskExecutionCycle()
@@ -82,31 +91,63 @@ processError = (err) ->
 stopExecution = ->
     log "stopExecution - SIGINT received"
     run = false
-    if claudeAbortion? then claudeAbortion()
+    claude.abort()
     return
 
 ##############################################################################
-runClaude = ->
+runClaude = (prompt) ->
     log "runClaude"
-    ## TODO implement
-    
-    fakeClaudProcess = (rslv, rjct) -> # mocked claude Process with simple delay
-        setTimeout(rslv, 33333)
-        claudeAbortion = rjct
-        return
-    await new Promise(fakeClaudProcess)   
-    return
+    result = await claude.execute(prompt)
+    if result?.aborted then throw new Error("Claude execution aborted")
+    return result
 
 ##############################################################################
 taskExecutionCycle = ->
     checkCycleLimit()
     logState()
-    ## TODO implement
 
-    await runClaude()
-    ## Save new State.
+    stateString = state["latest-state"]
+    switch(stateString)
+        when "" then await findNextTask()
+        when "taskRetrieved" then executeTask()
+        when "taskExecuted" then reviewTaskExecution()
+        else log "unexpected state: #{stateString}"
+
     iteration++
     return
+
+##############################################################################
+findNextTask = ->
+    log "findNextTask"
+    prompt = await fs.readFile(promptPaths.findTaskPrompt, "utf8")
+    await runClaude(prompt)
+    ## TODO check for intervention request
+    ## TODO do the git commits
+    ## TODO save new state
+    return
+
+##############################################################################
+executeTask = ->
+    log "executeTask"
+    prompt = await fs.readFile(promptPaths.taskFile, "utf8")
+    await runClaude(prompt)
+    ## TODO check for intervention request
+    ## TODO do the git commits
+    ## TODO save new state
+    return
+
+##############################################################################
+reviewTaskExecution = ->
+    log "reviewTaskExecution"
+    prompt = await fs.readFile(promptPaths.reviewTaskPrompt, "utf8")
+    await runClaude(prompt)
+    ## TODO check for intervention request
+    ## TODO do the git commits
+    ## TODO save new state
+    return
+    
+
+
 
 ##############################################################################
 logState = -> console.log("@#{(new Date()).toISOString()}:#{iteration} #{state["latest-state"]} TaskId:#{state["latest-taskId"]} action: #{action} ")

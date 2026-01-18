@@ -1,3 +1,4 @@
+import * as claudemodule from "./claudemodule.js"
 import * as cliargumentsmodule from "./cliargumentsmodule.js"
 import * as configmodule from "./configmodule.js"
 import * as debugmodule from "./debugmodule.js"
@@ -11,6 +12,7 @@ import * as uimodule from "./uimodule.js"
 import * as userconfigurationmodule from "./userconfigurationmodule.js"
 
 Modules = {
+    claudemodule,
     cliargumentsmodule,
     configmodule,
     debugmodule,
